@@ -1,10 +1,14 @@
 package team.codebuster.retrofitexample
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import kotlinx.coroutines.*
 import retrofit2.Call
@@ -14,6 +18,7 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
 
     lateinit var recyclerView: RecyclerView
+    lateinit var progressBar: ProgressBar
 
     private var postAdapter: PostAdapter? = null
 
@@ -21,8 +26,11 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
 
     private val uiScope = CoroutineScope(Dispatchers.Main + myJob)
 
+    private lateinit var viewModel: PostViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(PostViewModel::class.java)
         setContentView(R.layout.activity_main)
 
         recyclerView = findViewById(R.id.recyclerView)
@@ -31,7 +39,24 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
         postAdapter = PostAdapter(itemClickListener = this)
         recyclerView.adapter = postAdapter
 
-        getPost2()
+        progressBar = findViewById(R.id.progressBar)
+
+        viewModel.getPosts()
+        viewModel.liveData.observe(this, Observer { result ->
+            when(result) {
+                is PostResult.ShowLoading -> {
+                    progressBar.visibility = View.VISIBLE
+                }
+                is PostResult.HideLoading -> {
+                    progressBar.visibility = View.GONE
+                }
+                is PostResult.PostList -> {
+                    postAdapter?.list = result.list
+                    postAdapter?.notifyDataSetChanged()
+                }
+                is PostResult.Error -> {}
+            }
+        })
     }
 
     override fun itemClick(position: Int, item: Post) {
@@ -41,21 +66,6 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
     override fun onDestroy() {
         super.onDestroy()
         myJob.cancel()
-    }
-
-    private fun getPosts() {
-        RetrofitService.getPostApi().getPostList().enqueue(object : Callback<List<Post>> {
-            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-
-            }
-
-            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                Log.d("My_post_list", response.body().toString())
-                val list = response.body()
-                postAdapter?.list = list
-                postAdapter?.notifyDataSetChanged()
-            }
-        })
     }
 
     private fun getPost2() {
