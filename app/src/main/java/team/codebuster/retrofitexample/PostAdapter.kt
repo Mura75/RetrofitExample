@@ -8,7 +8,8 @@ import android.widget.TextView
 
 class PostAdapter(
     var list: List<Post>? = null,
-    val itemClickListener: RecyclerViewItemClick? = null) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+    val itemClickListener: RecyclerViewItemClick? = null
+) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): PostViewHolder {
         val view = LayoutInflater.from(p0.context).inflate(R.layout.item_post, p0, false)
@@ -21,6 +22,11 @@ class PostAdapter(
         p0.bind(list?.get(p1))
     }
 
+    fun clearAll() {
+        (list as? ArrayList<Post>)?.clear()
+        notifyDataSetChanged()
+    }
+
     inner class PostViewHolder(val view: View): RecyclerView.ViewHolder(view) {
 
         fun bind(post: Post?) {
@@ -29,7 +35,7 @@ class PostAdapter(
             val tvUserId = view.findViewById<TextView>(R.id.tvUserId)
 
             tvTitle.text = post?.title
-            tvPostId.text = post?.id.toString()
+            tvPostId.text = post?.postId.toString()
             tvUserId.text = post?.userId.toString()
 
             view.setOnClickListener {
