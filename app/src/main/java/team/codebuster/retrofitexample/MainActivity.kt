@@ -7,14 +7,22 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.widget.Toast
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
+class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick, CoroutineScope {
 
     lateinit var recyclerView: RecyclerView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
+    private val job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private var postAdapter: PostAdapter? = null
 
@@ -28,13 +36,18 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setOnRefreshListener {
             postAdapter?.clearAll()
-            getPosts()
+            getPostCoroutine()
         }
 
         postAdapter = PostAdapter(itemClickListener = this)
         recyclerView.adapter = postAdapter
 
-        getPosts()
+        getPostCoroutine()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 
     override fun itemClick(position: Int, item: Post) {
@@ -44,7 +57,6 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
     }
 
     private fun getPosts() {
-        swipeRefreshLayout.isRefreshing = true
         RetrofitService.getPostApi().getPostList().enqueue(object : Callback<List<Post>> {
             override fun onFailure(call: Call<List<Post>>, t: Throwable) {
                 swipeRefreshLayout.isRefreshing = false
@@ -61,4 +73,20 @@ class MainActivity : AppCompatActivity(), PostAdapter.RecyclerViewItemClick {
             }
         })
     }
+
+    private fun getPostCoroutine() {
+        launch {
+            swipeRefreshLayout.isRefreshing = true
+            val response = RetrofitService.getPostApi().getPostListCoroutine()
+            if (response.isSuccessful) {
+                val list = response.body()
+                postAdapter?.list = list
+                postAdapter?.notifyDataSetChanged()
+            } else {
+                Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
+            }
+            swipeRefreshLayout.isRefreshing = false
+        }
+    }
+
 }
