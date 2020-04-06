@@ -1,10 +1,6 @@
-package team.codebuster.retrofitexample
+package team.codebuster.retrofitexample.model
 
 import android.util.Log
-import com.google.gson.Gson
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import kotlinx.coroutines.Deferred
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call

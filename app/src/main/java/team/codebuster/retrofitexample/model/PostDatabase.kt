@@ -1,4 +1,4 @@
-package team.codebuster.retrofitexample
+package team.codebuster.retrofitexample.model
 
 import android.content.Context
 import androidx.room.Database

@@ -1,10 +1,12 @@
-package team.codebuster.retrofitexample
+package team.codebuster.retrofitexample.view
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import team.codebuster.retrofitexample.R
+import team.codebuster.retrofitexample.model.Post
 
 class PostAdapter(
     var list: List<Post>? = null,

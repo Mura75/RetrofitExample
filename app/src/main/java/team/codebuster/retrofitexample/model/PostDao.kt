@@ -1,9 +1,10 @@
-package team.codebuster.retrofitexample
+package team.codebuster.retrofitexample.model
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import team.codebuster.retrofitexample.model.Post
 
 @Dao
 interface PostDao {

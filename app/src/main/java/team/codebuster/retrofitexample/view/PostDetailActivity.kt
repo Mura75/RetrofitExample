@@ -1,4 +1,4 @@
-package team.codebuster.retrofitexample
+package team.codebuster.retrofitexample.view
 
 import android.os.Bundle
 import android.view.View
@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.http.Body
+import team.codebuster.retrofitexample.R
+import team.codebuster.retrofitexample.model.Post
+import team.codebuster.retrofitexample.model.RetrofitService
 
 class PostDetailActivity : AppCompatActivity() {
 
